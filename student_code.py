@@ -321,3 +321,55 @@ class SortableDigraph(VersatileDigraph):
                 if indeg[v] == 0:
                     q.append(v)
         return seen != len(nodes)
+
+class TraversableDigraph(SortableDigraph):
+    """This class contains methods for Depth-first Search and Breadth-first Search"""
+    def dfs(self, start_node):
+        """Iterative DFS generator starting at start_node (like iter_dfs)."""
+        if start_node not in self.nodes:
+            raise KeyError(f"Start node '{start_node}' does not exist.")
+        S, Q = set(), []
+        Q.append(start_node)
+        while Q:
+            u = Q.pop()
+            if u in S:
+                continue
+            S.add(u)
+            yield u
+            Q.extend(self.successors(u))
+    def bfs(self, start_node, qtype = None):
+        """This method performs a breadth-first search traversal of the digraph"""
+        if start_node not in self.nodes:
+            raise KeyError(f"Start node '{start_node}' does not exist.")
+        if qtype is None:
+            class _fifo(deque):
+                add = deque.append
+                def pop(self):
+                    return deque.popleft(self)
+            Q = _fifo()
+        else:
+            Q = qtype()
+        S = set()
+        Q.add(start_node)
+        while Q:
+            u = Q.pop()
+            if u in S:
+                continue
+            S.add(u)
+            for v in self.successors(u):
+                Q.add(v)
+            yield u
+
+class DAG(TraversableDigraph):
+    """This class modifies the add_edge method from VersatileDigraph to not introduce cycles"""
+    def add_edge(self, start_node_id, end_node_id, start_node_value = 0, end_node_value = 0,
+                 edge_name = None, edge_weight = None):
+        """This method augments the add_edge method from __ to ensure that
+        when an edge is added, a cycle isn't created"""
+        if super()._has_cycle():
+            raise ValueError("The graph has a cycle")
+        out = super().add_edge(start_node_id, end_node_id, start_node_value = 0,
+                               end_node_value = 0, edge_name, edge_weight)
+        if out._has_cycle():
+            raise ValueError("The added edge introduces a cycle")
+        return out

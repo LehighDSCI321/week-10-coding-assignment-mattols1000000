@@ -337,8 +337,8 @@ class TraversableDigraph(SortableDigraph):
             S.add(u)
             yield u
             Q.extend(self.successors(u))
-    def bfs(self, start_node, qtype = None):
-        """This method performs a breadth-first search traversal of the digraph"""
+    def bfs(self, start_node, qtype=None, include_start=False):
+        """Breadth-first traversal; optionally include the start node in output."""
         if start_node not in self.nodes:
             raise KeyError(f"Start node '{start_node}' does not exist.")
         if qtype is None:
@@ -346,7 +346,7 @@ class TraversableDigraph(SortableDigraph):
                 add = deque.append
                 def pop(self):
                     return deque.popleft(self)
-            Q = _fifo()
+                    Q = _fifo()
         else:
             Q = qtype()
         S = set()
@@ -358,7 +358,8 @@ class TraversableDigraph(SortableDigraph):
             S.add(u)
             for v in self.successors(u):
                 Q.add(v)
-            yield u
+            if include_start or u != start_node:
+                yield u
 
 class DAG(TraversableDigraph):
     """Keep the graph acyclic by rolling back any edge that would create a cycle."""

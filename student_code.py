@@ -368,8 +368,8 @@ class DAG(TraversableDigraph):
         when an edge is added, a cycle isn't created"""
         if super()._has_cycle():
             raise ValueError("The graph has a cycle")
-        out = super().add_edge(start_node_id, end_node_id, start_node_value = 0,
-                               end_node_value = 0, edge_name, edge_weight)
+        out = super().add_edge(start_node_id, end_node_id, start_node_value,
+                               end_node_value, edge_name, edge_weight)
         if out._has_cycle():
             raise ValueError("The added edge introduces a cycle")
         return out

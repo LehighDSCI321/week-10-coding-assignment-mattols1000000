@@ -357,7 +357,7 @@ class TraversableDigraph(SortableDigraph):
             u = pop()
             if u in stack:
                 continue
-            S.add(u)
+            stack.add(u)
             for v in self.successors(u):
                 add(v)
             if include_start or u != start_node:

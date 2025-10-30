@@ -337,27 +337,29 @@ class TraversableDigraph(SortableDigraph):
             S.add(u)
             yield u
             Q.extend(self.successors(u))
+    from collections import deque
+
     def bfs(self, start_node, qtype=None, include_start=False):
-        """Breadth-first traversal; optionally include the start node in output."""
+        """Breadth-first traversal; optionally include the start node in the output."""
         if start_node not in self.nodes:
             raise KeyError(f"Start node '{start_node}' does not exist.")
+        S = set()
         if qtype is None:
-            class _fifo(deque):
-                add = deque.append
-                def pop(self):
-                    return deque.popleft(self)
-                    Q = _fifo()
+            Q = deque([start_node])
+            pop = Q.popleft
+            add = Q.append
         else:
             Q = qtype()
-        S = set()
-        Q.add(start_node)
+            Q.add(start_node)
+            pop = Q.pop
+            add = Q.add
         while Q:
-            u = Q.pop()
+            u = pop()
             if u in S:
                 continue
             S.add(u)
             for v in self.successors(u):
-                Q.add(v)
+                add(v)
             if include_start or u != start_node:
                 yield u
 
@@ -366,6 +368,8 @@ class DAG(TraversableDigraph):
     def add_edge(self, start_node_id, end_node_id,
                  start_node_value=0, end_node_value=0,
                  edge_name=None, edge_weight=None):
+        """This method adds an edge, but checks if a cycle is added.
+        Removes the edge if a cycle is created"""
         super().add_edge(start_node_id, end_node_id,
                          start_node_value, end_node_value,
                          edge_name, edge_weight)

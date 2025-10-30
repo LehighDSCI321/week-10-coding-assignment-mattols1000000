@@ -361,19 +361,18 @@ class TraversableDigraph(SortableDigraph):
             yield u
 
 class DAG(TraversableDigraph):
-    """This class modifies the add_edge method from VersatileDigraph to not introduce cycles"""
-    def add_edge(self, start_node_id, end_node_id, start_node_value = 0, end_node_value = 0,
-                 edge_name = None, edge_weight = None):
-        """This method augments the add_edge method from __ to ensure that
-        when an edge is added, a cycle isn't created"""
-        if super()._has_cycle():
-            raise ValueError("The graph has a cycle")
-        out = super().add_edge(start_node_id, end_node_id, start_node_value,
-                               end_node_value, edge_name, edge_weight)
+    """Keep the graph acyclic by rolling back any edge that would create a cycle."""
+    def add_edge(self, start_node_id, end_node_id,
+                 start_node_value=0, end_node_value=0,
+                 edge_name=None, edge_weight=None):
+        super().add_edge(start_node_id, end_node_id,
+                         start_node_value, end_node_value,
+                         edge_name, edge_weight)
+        used_name = edge_name if edge_name is not None else f"{start_node_id}{end_node_id}"
         if self._has_cycle():
             try:
                 del self.edges[start_node_id][used_name]
-                if not self.edges[start_node_id]:   # clean empty bucket
+                if not self.edges[start_node_id]:
                     del self.edges[start_node_id]
             except KeyError:
                 pass

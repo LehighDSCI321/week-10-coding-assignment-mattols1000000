@@ -311,15 +311,15 @@ class SortableDigraph(VersatileDigraph):
                     indeg[v] = 0
                 indeg[v] += 1
 
-        q = deque([u for u in nodes if indeg.get(u, 0) == 0])
+        que = deque([u for u in nodes if indeg.get(u, 0) == 0])
         seen = 0
-        while q:
-            u = q.popleft()
+        while que:
+            u = que.popleft()
             seen += 1
             for _, (_, v) in self.edges.get(u, {}).items():
                 indeg[v] -= 1
                 if indeg[v] == 0:
-                    q.append(v)
+                    que.append(v)
         return seen != len(nodes)
 
 class TraversableDigraph(SortableDigraph):
@@ -328,34 +328,34 @@ class TraversableDigraph(SortableDigraph):
         """Iterative DFS generator starting at start_node (like iter_dfs)."""
         if start_node not in self.nodes:
             raise KeyError(f"Start node '{start_node}' does not exist.")
-        S, Q = set(), []
-        Q.append(start_node)
-        while Q:
-            u = Q.pop()
-            if u in S:
+        stack, que = set(), []
+        que.append(start_node)
+        while que:
+            u = que.pop()
+            if u in stack:
                 continue
-            S.add(u)
+            stack.add(u)
             if include_start or u != start_node:
                 yield u
-            Q.extend(self.successors(u))
+            que.extend(self.successors(u))
 
     def bfs(self, start_node, qtype=None, include_start=False):
         """Breadth-first traversal; optionally include the start node in the output."""
         if start_node not in self.nodes:
             raise KeyError(f"Start node '{start_node}' does not exist.")
-        S = set()
+        stack = set()
         if qtype is None:
-            Q = deque([start_node])
-            pop = Q.popleft
-            add = Q.append
+            que = deque([start_node])
+            pop = que.popleft
+            add = que.append
         else:
-            Q = qtype()
-            Q.add(start_node)
-            pop = Q.pop
-            add = Q.add
-        while Q:
+            que = qtype()
+            que.add(start_node)
+            pop = que.pop
+            add = que.add
+        while que:
             u = pop()
-            if u in S:
+            if u in stack:
                 continue
             S.add(u)
             for v in self.successors(u):

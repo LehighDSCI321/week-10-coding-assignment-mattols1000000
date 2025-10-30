@@ -371,5 +371,11 @@ class DAG(TraversableDigraph):
         out = super().add_edge(start_node_id, end_node_id, start_node_value,
                                end_node_value, edge_name, edge_weight)
         if self._has_cycle():
+            try:
+                del self.edges[start_node_id][used_name]
+                if not self.edges[start_node_id]:   # clean empty bucket
+                    del self.edges[start_node_id]
+            except KeyError:
+                pass
             raise ValueError("The added edge introduces a cycle")
-        return out
+        return None

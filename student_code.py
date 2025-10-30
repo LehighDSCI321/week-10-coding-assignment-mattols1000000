@@ -324,7 +324,7 @@ class SortableDigraph(VersatileDigraph):
 
 class TraversableDigraph(SortableDigraph):
     """This class contains methods for Depth-first Search and Breadth-first Search"""
-    def dfs(self, start_node):
+    def dfs(self, start_node,  include_start=False):
         """Iterative DFS generator starting at start_node (like iter_dfs)."""
         if start_node not in self.nodes:
             raise KeyError(f"Start node '{start_node}' does not exist.")
@@ -335,9 +335,9 @@ class TraversableDigraph(SortableDigraph):
             if u in S:
                 continue
             S.add(u)
-            yield u
+            if include_start or u != start_node:
+                yield u
             Q.extend(self.successors(u))
-    from collections import deque
 
     def bfs(self, start_node, qtype=None, include_start=False):
         """Breadth-first traversal; optionally include the start node in the output."""

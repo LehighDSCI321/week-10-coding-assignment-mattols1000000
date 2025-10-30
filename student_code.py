@@ -370,6 +370,6 @@ class DAG(TraversableDigraph):
             raise ValueError("The graph has a cycle")
         out = super().add_edge(start_node_id, end_node_id, start_node_value,
                                end_node_value, edge_name, edge_weight)
-        if out._has_cycle():
+        if self._has_cycle():
             raise ValueError("The added edge introduces a cycle")
         return out
